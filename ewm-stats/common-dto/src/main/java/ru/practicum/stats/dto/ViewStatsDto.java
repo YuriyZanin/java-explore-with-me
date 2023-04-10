@@ -6,5 +6,5 @@ import lombok.Value;
 public class ViewStatsDto {
     String app;
     String uri;
-    Integer hits;
+    Long hits;
 }
