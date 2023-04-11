@@ -1,9 +1,9 @@
-package ru.practicum.stats.mapper;
+package ru.practicum.stats.endpointhit.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
 import ru.practicum.stats.dto.EndpointHitDto;
-import ru.practicum.stats.model.EndpointHit;
+import ru.practicum.stats.endpointhit.model.EndpointHit;
 
 @Mapper
 public interface EndpointHitMapper {

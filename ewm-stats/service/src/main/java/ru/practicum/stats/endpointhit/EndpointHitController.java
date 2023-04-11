@@ -1,12 +1,13 @@
-package ru.practicum.stats;
+package ru.practicum.stats.endpointhit;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.stats.dto.EndpointHitDto;
 import ru.practicum.stats.dto.ViewStatsDto;
-import ru.practicum.stats.service.EndpointHitService;
+import ru.practicum.stats.endpointhit.service.EndpointHitService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 @Slf4j
@@ -16,7 +17,7 @@ public class EndpointHitController {
     private final EndpointHitService endpointHitService;
 
     @PostMapping("/hit")
-    public void create(@RequestBody EndpointHitDto endpointHitDto) {
+    public void create(@Valid @RequestBody EndpointHitDto endpointHitDto) {
         log.info("Сохранение информации о запросе пользователя");
         endpointHitService.create(endpointHitDto);
     }
