@@ -3,10 +3,8 @@ package ru.practicum.stats.dto;
 import lombok.Builder;
 import lombok.Value;
 
-import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.time.LocalDateTime;
 
 @Value
 @Builder
@@ -19,6 +17,5 @@ public class EndpointHitDto {
     @NotBlank
     String ip;
     @NotNull
-    @FutureOrPresent
-    LocalDateTime timestamp;
+    String timestamp;
 }

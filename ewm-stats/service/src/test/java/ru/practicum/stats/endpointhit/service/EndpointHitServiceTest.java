@@ -27,13 +27,13 @@ public class EndpointHitServiceTest {
     void shouldSaveAndFindStats() {
         LocalDateTime currentDate = LocalDateTime.now();
         EndpointHitDto test1 = EndpointHitDto.builder()
-                .app("test_app").uri("/test/1").ip("0.0.0.1").timestamp(currentDate).build();
+                .app("test_app").uri("/test/1").ip("0.0.0.1").timestamp(currentDate.format(DEFAULT_DATE_TIME_FORMATTER)).build();
         EndpointHitDto test2 = EndpointHitDto.builder()
-                .app("test_app").uri("/test/1").ip("0.0.0.2").timestamp(currentDate).build();
+                .app("test_app").uri("/test/1").ip("0.0.0.2").timestamp(currentDate.format(DEFAULT_DATE_TIME_FORMATTER)).build();
         EndpointHitDto test3 = EndpointHitDto.builder()
-                .app("test_app").uri("/test/2").ip("0.0.0.1").timestamp(currentDate.minusDays(1)).build();
+                .app("test_app").uri("/test/2").ip("0.0.0.1").timestamp(currentDate.minusDays(1).format(DEFAULT_DATE_TIME_FORMATTER)).build();
         EndpointHitDto test4 = EndpointHitDto.builder()
-                .app("test_app").uri("/test/2").ip("0.0.0.1").timestamp(currentDate.minusDays(2)).build();
+                .app("test_app").uri("/test/2").ip("0.0.0.1").timestamp(currentDate.minusDays(2).format(DEFAULT_DATE_TIME_FORMATTER)).build();
 
         endpointHitService.create(test1);
         endpointHitService.create(test2);
@@ -66,8 +66,8 @@ public class EndpointHitServiceTest {
         assertThat(statsByUris, hasSize(1));
         assertThat(statsByUris.get(0), hasProperty("uri", equalTo("/test/1")));
         assertThat(statsByUris.get(0), hasProperty("hits", equalTo(2L)));
-        assertThat(byDateNotUnique, hasSize(1));
-        assertThat(byDateNotUnique.get(0), hasProperty("uri", equalTo("/test/2")));
+        assertThat(byDateNotUnique, hasSize(2));
+        assertThat(byDateNotUnique.get(0), hasProperty("uri", equalTo("/test/1")));
         assertThat(byDateNotUnique.get(0), hasProperty("hits", equalTo(2L)));
     }
 }
