@@ -70,4 +70,46 @@ public class EndpointHitControllerTest {
                 .andExpect(jsonPath("$.[0].uri", equalTo("/test/1")))
                 .andExpect(jsonPath("$.[0].hits", equalTo(6)));
     }
+
+    @SneakyThrows
+    @Test
+    void shouldBeFailedIfAppNull() {
+        EndpointHitDto test = EndpointHitDto.builder().app(null).uri("test/1").ip("0.0.0.0")
+                .timestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).format(DEFAULT_DATE_TIME_FORMATTER))
+                .build();
+
+        mvc.perform(post("/hit")
+                .content(mapper.writeValueAsString(test))
+                .characterEncoding(StandardCharsets.UTF_8)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().is4xxClientError());
+    }
+
+    @SneakyThrows
+    @Test
+    void shouldBeFailedIfUriBlank() {
+        EndpointHitDto test = EndpointHitDto.builder().app("test").uri("    ").ip("0.0.0.0")
+                .timestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).format(DEFAULT_DATE_TIME_FORMATTER))
+                .build();
+
+        mvc.perform(post("/hit")
+                .content(mapper.writeValueAsString(test))
+                .characterEncoding(StandardCharsets.UTF_8)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().is4xxClientError());
+    }
+
+    @SneakyThrows
+    @Test
+    void shouldBeFailedIfIpEmpty() {
+        EndpointHitDto test = EndpointHitDto.builder().app("test").uri("/test/1").ip("")
+                .timestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).format(DEFAULT_DATE_TIME_FORMATTER))
+                .build();
+
+        mvc.perform(post("/hit")
+                .content(mapper.writeValueAsString(test))
+                .characterEncoding(StandardCharsets.UTF_8)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().is4xxClientError());
+    }
 }
