@@ -8,6 +8,7 @@ import ru.practicum.stats.dto.ViewStatsDto;
 import ru.practicum.stats.endpointhit.service.EndpointHitService;
 
 import javax.validation.Valid;
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -23,10 +24,10 @@ public class EndpointHitController {
     }
 
     @GetMapping("/stats")
-    public List<ViewStatsDto> findStats(@RequestParam String start,
-                                        @RequestParam String end,
-                                        @RequestParam(required = false) List<String> uris,
-                                        @RequestParam(defaultValue = "false") Boolean unique) {
+    public Collection<ViewStatsDto> findStats(@RequestParam String start,
+                                              @RequestParam String end,
+                                              @RequestParam(required = false) List<String> uris,
+                                              @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("Получение статистики по посещениям с {} по {}, uris={}, unique={}", start, end, uris, unique);
         return endpointHitService.getStats(start, end, uris, unique);
     }

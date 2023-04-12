@@ -28,11 +28,11 @@ public class EndpointHitServiceImpl implements EndpointHitService {
         LocalDateTime startDateTime = decodeDate(start);
         LocalDateTime endDateTime = decodeDate(end);
         if (unique) {
-            return uris == null
+            return uris == null || uris.isEmpty()
                     ? endpointHitRepository.findByDateWithUniqueIp(startDateTime, endDateTime)
                     : endpointHitRepository.findByDateAndUrisWithUniqueIp(startDateTime, endDateTime, uris);
         } else {
-            return uris == null
+            return uris == null || uris.isEmpty()
                     ? endpointHitRepository.findByDate(startDateTime, endDateTime)
                     : endpointHitRepository.findByDateAndUris(startDateTime, endDateTime, uris);
         }
