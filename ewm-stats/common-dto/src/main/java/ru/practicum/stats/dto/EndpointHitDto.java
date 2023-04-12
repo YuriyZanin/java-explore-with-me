@@ -1,13 +1,16 @@
 package ru.practicum.stats.dto;
 
-import lombok.Builder;
-import lombok.Value;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
-@Value
+@FieldDefaults(level = AccessLevel.PRIVATE)
+@Getter
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class EndpointHitDto {
     Long id;
     @NotBlank

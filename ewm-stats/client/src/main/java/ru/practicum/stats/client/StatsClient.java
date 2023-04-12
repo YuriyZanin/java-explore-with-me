@@ -1,52 +1,50 @@
 package ru.practicum.stats.client;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.client.HttpComponentsClientHttpRequestFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.DefaultUriBuilderFactory;
+import org.springframework.web.reactive.function.client.WebClient;
 import ru.practicum.stats.dto.EndpointHitDto;
-import ru.practicum.stats.utils.DateTimeUtils;
+import ru.practicum.stats.dto.ViewStatsDto;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Map;
+
+import static ru.practicum.stats.utils.DateTimeUtils.DEFAULT_DATE_TIME_FORMATTER;
 
 @Component
-public class StatsClient extends BaseClient {
+public class StatsClient {
+    private final WebClient client;
 
-    public StatsClient(@Value("${ewm-stats-service.url}") String serverUrl, RestTemplateBuilder builder) {
-        super(
-                builder
-                        .uriTemplateHandler(new DefaultUriBuilderFactory(serverUrl))
-                        .requestFactory(HttpComponentsClientHttpRequestFactory::new)
-                        .build()
-        );
+    public StatsClient(@Value("${ewm-stats-service.url}") String serverUrl) {
+        this.client = WebClient.create(serverUrl);
     }
 
-    public ResponseEntity<Object> saveRequest(String app, String path, String ip) {
-        EndpointHitDto requestDto = EndpointHitDto.builder()
-                .app(app)
-                .uri(path)
-                .ip(ip)
-                .timestamp(LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS))
-                .build();
-        return post("/hit", requestDto);
+    public void saveRequest(String app, String path, String ip) {
+        String currentTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS).format(DEFAULT_DATE_TIME_FORMATTER);
+        EndpointHitDto hitDto = EndpointHitDto.builder().app(app).uri(path).ip(ip).timestamp(currentTime).build();
+        client.post()
+                .uri("/hit")
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .bodyValue(hitDto)
+                .retrieve()
+                .toBodilessEntity()
+                .block();
     }
 
-    public ResponseEntity<Object> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        String startStr = start.format(DateTimeUtils.DEFAULT_DATE_TIME_FORMATTER);
-        String endStr = end.format(DateTimeUtils.DEFAULT_DATE_TIME_FORMATTER);
-        Map<String, Object> parameters = Map.of(
-                "start", URLEncoder.encode(startStr, StandardCharsets.UTF_8),
-                "end", URLEncoder.encode(endStr, StandardCharsets.UTF_8),
-                "uris", uris,
-                "unique", unique
-        );
-        return get("/stats?start={start}&end={end}&uris={uris}&unique={unique}", parameters);
+    public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
+        return client.get()
+                .uri(uriBuilder -> uriBuilder.path("/stats")
+                        .queryParam("start", start.format(DEFAULT_DATE_TIME_FORMATTER))
+                        .queryParam("end", end.format(DEFAULT_DATE_TIME_FORMATTER))
+                        .queryParam("uris", uris)
+                        .queryParam("unique", unique)
+                        .build())
+                .retrieve()
+                .bodyToFlux(ViewStatsDto.class)
+                .collectList()
+                .block();
     }
 }
