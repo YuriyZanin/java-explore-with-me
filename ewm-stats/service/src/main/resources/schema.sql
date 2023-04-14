@@ -7,3 +7,9 @@ CREATE TABLE IF NOT EXISTS endpoint_hits
     timestamp TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     CONSTRAINT pk_hit PRIMARY KEY (id)
 );
+
+CREATE INDEX idx_app on endpoint_hits (app);
+CREATE INDEX idx_ip on endpoint_hits (ip);
+CREATE INDEX idx_uri on endpoint_hits (uri);
+CREATE INDEX idx_timestamp on endpoint_hits (timestamp);
+CREATE INDEX idx_uri_timestamp on endpoint_hits(uri, timestamp);
