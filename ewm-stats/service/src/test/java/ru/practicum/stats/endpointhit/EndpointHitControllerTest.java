@@ -112,4 +112,18 @@ public class EndpointHitControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
         ).andExpect(status().is4xxClientError());
     }
+
+    @SneakyThrows
+    @Test
+    void shouldBeFailedIfDateFormatIncorrect() {
+        EndpointHitDto test = EndpointHitDto.builder().app("test").uri("/test/1").ip("0.0.0.0")
+                .timestamp("2023-04-14")
+                .build();
+
+        mvc.perform(post("/hit")
+                .content(mapper.writeValueAsString(test))
+                .characterEncoding(StandardCharsets.UTF_8)
+                .contentType(MediaType.APPLICATION_JSON)
+        ).andExpect(status().is4xxClientError());
+    }
 }
