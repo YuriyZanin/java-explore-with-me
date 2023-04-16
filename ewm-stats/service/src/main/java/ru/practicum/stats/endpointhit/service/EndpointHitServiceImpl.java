@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.practicum.stats.dto.EndpointHitDto;
 import ru.practicum.stats.dto.ViewStatsDto;
-import ru.practicum.stats.endpointhit.mapper.EndpointHitMapper;
 import ru.practicum.stats.endpointhit.repository.EndpointHitRepository;
 import ru.practicum.stats.utils.DateTimeUtils;
 
@@ -13,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import static ru.practicum.stats.endpointhit.mapper.EndpointHitMapper.MAPPER;
+
 @Service
 @RequiredArgsConstructor
 public class EndpointHitServiceImpl implements EndpointHitService {
@@ -20,7 +21,7 @@ public class EndpointHitServiceImpl implements EndpointHitService {
 
     @Override
     public void create(EndpointHitDto endpointHitDto) {
-        endpointHitRepository.save(EndpointHitMapper.MAPPER.toEndpointHit(endpointHitDto));
+        endpointHitRepository.save(MAPPER.toEndpointHit(endpointHitDto));
     }
 
     @Override
@@ -29,12 +30,12 @@ public class EndpointHitServiceImpl implements EndpointHitService {
         LocalDateTime endDateTime = decodeDate(end);
         if (unique) {
             return uris == null || uris.isEmpty()
-                    ? endpointHitRepository.findByDateWithUniqueIp(startDateTime, endDateTime)
-                    : endpointHitRepository.findByDateAndUrisWithUniqueIp(startDateTime, endDateTime, uris);
+                    ? MAPPER.toViewStatsDtos(endpointHitRepository.findByDateWithUniqueIp(startDateTime, endDateTime))
+                    : MAPPER.toViewStatsDtos(endpointHitRepository.findByDateAndUrisWithUniqueIp(startDateTime, endDateTime, uris));
         } else {
             return uris == null || uris.isEmpty()
-                    ? endpointHitRepository.findByDate(startDateTime, endDateTime)
-                    : endpointHitRepository.findByDateAndUris(startDateTime, endDateTime, uris);
+                    ? MAPPER.toViewStatsDtos(endpointHitRepository.findByDate(startDateTime, endDateTime))
+                    : MAPPER.toViewStatsDtos(endpointHitRepository.findByDateAndUris(startDateTime, endDateTime, uris));
         }
     }
 
