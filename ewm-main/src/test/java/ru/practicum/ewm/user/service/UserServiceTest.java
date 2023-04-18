@@ -26,9 +26,9 @@ class UserServiceTest {
 
     @Test
     void shouldSaveAndGetUsers() {
-        NewUserRequest user1Details = new NewUserRequest("mail1@mail.ru", "test1");
-        NewUserRequest user2Details = new NewUserRequest("mail2@mail.ru", "test2");
-        NewUserRequest user3Details = new NewUserRequest("mail3@mail.ru", "test3");
+        NewUserRequest user1Details = NewUserRequest.builder().email("mail1@mail.ru").name("test1").build();
+        NewUserRequest user2Details = NewUserRequest.builder().email("mail2@mail.ru").name("test2").build();
+        NewUserRequest user3Details = NewUserRequest.builder().email("mail3@mail.ru").name("test3").build();
 
         UserDto createdUser1 = userService.create(user1Details);
         UserDto createdUser2 = userService.create(user2Details);
@@ -51,6 +51,6 @@ class UserServiceTest {
         assertThat(allUserAfterDelete, hasSize(2));
         assertThat(allUserAfterDelete, hasItems(createdUser2, createdUser3));
         Assertions.assertThrows(DataIntegrityViolationException.class, () ->
-                userService.create(new NewUserRequest("mail2@mail.ru", "test2")));
+                userService.create(NewUserRequest.builder().email("mail2@mail.ru").name("test2").build()));
     }
 }

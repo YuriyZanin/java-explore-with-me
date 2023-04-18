@@ -34,7 +34,7 @@ public class EwmExceptionHandler {
     public ApiError handleNotFoundException(final NotFoundException e) {
         log.error(e.getMessage());
         return ApiError.builder()
-                .status(HttpStatus.CONFLICT.name())
+                .status(HttpStatus.NOT_FOUND.name())
                 .reason("The required object was not found.")
                 .message(e.getMessage())
                 .timestamp(LocalDateTime.now().format(DateTimeUtils.DEFAULT_DATE_TIME_FORMATTER))
@@ -54,12 +54,12 @@ public class EwmExceptionHandler {
     }
 
     @ExceptionHandler
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ResponseStatus(HttpStatus.CONFLICT)
     public ApiError handleIllegalArgumentException(final IllegalArgumentException e) {
         log.error(e.getMessage());
         return ApiError.builder()
-                .status(HttpStatus.BAD_REQUEST.name())
-                .reason("Incorrectly made request.")
+                .status(HttpStatus.FORBIDDEN.name())
+                .reason("For the requested operation the conditions are not met.")
                 .message(e.getMessage())
                 .timestamp(LocalDateTime.now().format(DateTimeUtils.DEFAULT_DATE_TIME_FORMATTER))
                 .build();

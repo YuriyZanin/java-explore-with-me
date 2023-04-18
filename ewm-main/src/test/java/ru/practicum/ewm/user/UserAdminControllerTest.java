@@ -37,7 +37,7 @@ public class UserAdminControllerTest {
     @SneakyThrows
     @Test
     void shouldReturnStatus200AndJsonWhenSaveNewUser() {
-        NewUserRequest userRequest = new NewUserRequest("test@mail.com", "test");
+        NewUserRequest userRequest = NewUserRequest.builder().name("test").email("test@mail.com").build();
 
         Mockito.when(userService.create(Mockito.any())).thenReturn(userDto);
 
@@ -55,7 +55,7 @@ public class UserAdminControllerTest {
     @SneakyThrows
     @Test
     void shouldReturnStatus400WhenNotValidEmail() {
-        NewUserRequest userRequest = new NewUserRequest("notValidMail", "test");
+        NewUserRequest userRequest = NewUserRequest.builder().email("notValidMail").name("test").build();
 
         mvc.perform(post("/admin/users")
                 .content(mapper.writeValueAsString(userRequest))
@@ -68,7 +68,7 @@ public class UserAdminControllerTest {
     @SneakyThrows
     @Test
     void shouldReturnStatus400WhenNameIsNull() {
-        NewUserRequest userRequest = new NewUserRequest("test@mail.com", null);
+        NewUserRequest userRequest = NewUserRequest.builder().name(null).email("test@mail.com").build();
 
         mvc.perform(post("/admin/users")
                 .content(mapper.writeValueAsString(userRequest))
