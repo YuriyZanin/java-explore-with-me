@@ -10,9 +10,9 @@ public interface EventService {
 
     EventFullDto updateByAdmin(Long eventId, UpdateEventRequest adminRequest);
 
-    Collection<EventShortDto> getAllPublic(EventRequestParams params);
+    Collection<EventShortDto> getAllPublic(EventRequestParams params, String uri, String ip);
 
-    EventFullDto getPublicById(Long id);
+    EventFullDto getPublicById(Long id, String uri, String ip);
 
     EventFullDto create(Long userId, NewEventDto creationDto);
 

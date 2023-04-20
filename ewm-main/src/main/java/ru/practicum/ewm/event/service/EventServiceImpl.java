@@ -1,6 +1,7 @@
 package ru.practicum.ewm.event.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -21,8 +22,12 @@ import ru.practicum.ewm.request.model.Status;
 import ru.practicum.ewm.request.repository.ParticipationRequestRepository;
 import ru.practicum.ewm.user.model.User;
 import ru.practicum.ewm.user.repository.UserRepository;
+import ru.practicum.stats.client.StatsClient;
+import ru.practicum.stats.dto.ViewStatsDto;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -30,14 +35,18 @@ import java.util.stream.Collectors;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class EventServiceImpl implements EventService {
+    private final StatsClient client;
     private final UserRepository userRepository;
     private final EventRepository eventRepository;
     private final ParticipationRequestRepository requestRepository;
 
+    @Value("${app-name}")
+    private String appName;
+
     @Override
     public Collection<EventFullDto> getAll(EventRequestParams params) {
         PageRequest page = PageRequest.of(params.getFrom() / params.getSize(), params.getSize());
-        List<Event> events = eventRepository.findAll(buildSpecification(params), page).getContent();
+        List<Event> events = eventRepository.findAll(buildSpecificationByParams(params), page).getContent();
         return EventMapper.MAPPER.toFullDtos(events);
     }
 
@@ -69,24 +78,45 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Collection<EventShortDto> getAllPublic(EventRequestParams params) {
-        Sort sort = getSorting(params);
-        PageRequest page = PageRequest.of(params.getFrom() / params.getSize(), params.getSize(), sort);
-
+    public Collection<EventShortDto> getAllPublic(EventRequestParams params, String uri, String ip) {
         Specification<Event> byState = (root, query, builder) -> builder.equal(
                 root.get("state"), EventState.PUBLISHED);
 
-        Specification<Event> specification = buildSpecification(params);
+        Specification<Event> specification = buildSpecificationByParams(params);
         specification = specification == null ? byState : specification.and(byState);
 
-        return EventMapper.MAPPER.toShortDtos(eventRepository.findAll(specification, page).getContent());
+        Sort sort = getSorting(params);
+        PageRequest page = PageRequest.of(params.getFrom() / params.getSize(), params.getSize(), sort);
+        List<Event> events = eventRepository.findAll(specification, page).getContent();
+
+        client.saveRequest(appName, uri, ip);
+
+        List<String> uris = events.stream().map(e -> uri + "/" + e.getId()).collect(Collectors.toList());
+        LocalDateTime start = LocalDateTime.of(LocalDate.of(1900, 1, 1), LocalTime.of(0, 0));
+        List<ViewStatsDto> stats = client.getStats(start, LocalDateTime.now(), uris, false);
+        fillEventViews(events, stats, uri);
+
+        return EventMapper.MAPPER.toShortDtos(events);
+    }
+
+    private void fillEventViews(List<Event> events, List<ViewStatsDto> stats, String baseUri) {
+        Map<String, Integer> statsByUri = stats.stream()
+                .collect(Collectors.groupingBy(ViewStatsDto::getUri, Collectors.summingInt(v -> v.getHits().intValue())));
+        events.forEach(e -> e.setViews(statsByUri.get(baseUri + "/" + e.getId())));
     }
 
     @Override
-    public EventFullDto getPublicById(Long id) {
+    public EventFullDto getPublicById(Long id, String uri, String ip) {
         Event event = eventRepository.findByIdAndStateIs(id, EventState.PUBLISHED).orElseThrow(
                 () -> new NotFoundException("Событие не найдено либо не опубликовано"));
 
+        client.saveRequest(appName, uri, ip);
+        LocalDateTime start = LocalDateTime.of(LocalDate.of(1900, 1, 1), LocalTime.of(0, 0));
+        List<ViewStatsDto> stats = client.getStats(start, LocalDateTime.now(),
+                List.of(uri), false);
+        Integer hits = stats.stream().map(s -> s.getHits().intValue()).reduce(0, Integer::sum);
+
+        event.setViews(hits);
         return EventMapper.MAPPER.toFullDto(event);
     }
 
@@ -220,7 +250,7 @@ public class EventServiceImpl implements EventService {
         Optional.ofNullable(request.getTitle()).ifPresent(event::setTitle);
     }
 
-    private Specification<Event> buildSpecification(EventRequestParams params) {
+    private Specification<Event> buildSpecificationByParams(EventRequestParams params) {
         Specification<Event> specification = null;
 
         if (params.getUsers() != null) {

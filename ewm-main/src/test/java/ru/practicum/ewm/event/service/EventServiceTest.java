@@ -82,6 +82,11 @@ public class EventServiceTest {
         params = EventRequestParams.builder().states(new String[]{"PUBLISHED"}).build();
         List<EventFullDto> searchedPublished = new ArrayList<>(eventService.getAll(params));
 
+        EventFullDto eventWithViews = eventService.getPublicById(createdEvent1.getId(), "events/1", "0.0.0.0");
+
+        List<EventShortDto> allEvents = new ArrayList<>(
+                eventService.getAllPublic(EventRequestParams.builder().build(), "events", "0.0.0.0"));
+
         assertThat(createdEvent1.getId(), notNullValue());
         assertThat(searchedByPaid, hasSize(1));
         assertThat(searchedByPaid.get(0), hasProperty("title", equalTo(createdEvent2.getTitle())));
@@ -91,5 +96,9 @@ public class EventServiceTest {
         assertThat(searchedByCategory, hasSize(2));
         assertThat(searchedPublished, hasSize(1));
         assertThat(searchedPublished.get(0), hasProperty("state", equalTo(EventState.PUBLISHED.name())));
+        assertThat(eventWithViews.getId(), equalTo(createdEvent1.getId()));
+        assertThat(eventWithViews.getViews(), equalTo(1));
+        assertThat(allEvents, hasSize(1));
+        assertThat(allEvents.get(0), hasProperty("views", equalTo(1)));
     }
 }

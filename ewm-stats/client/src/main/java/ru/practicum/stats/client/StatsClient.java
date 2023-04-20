@@ -1,24 +1,23 @@
 package ru.practicum.stats.client;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
-import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
+import ru.practicum.stats.client.model.ViewStats;
 import ru.practicum.stats.dto.EndpointHitDto;
 import ru.practicum.stats.dto.ViewStatsDto;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static ru.practicum.stats.utils.DateTimeUtils.DEFAULT_DATE_TIME_FORMATTER;
 
-@Component
 public class StatsClient {
     private final WebClient client;
 
-    public StatsClient(@Value("${ewm-stats-service.url}") String serverUrl) {
+    public StatsClient(String serverUrl) {
         this.client = WebClient.create(serverUrl);
     }
 
@@ -35,7 +34,7 @@ public class StatsClient {
     }
 
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        return client.get()
+        List<ViewStats> response = client.get()
                 .uri(uriBuilder -> uriBuilder.path("/stats")
                         .queryParam("start", start.format(DEFAULT_DATE_TIME_FORMATTER))
                         .queryParam("end", end.format(DEFAULT_DATE_TIME_FORMATTER))
@@ -43,8 +42,12 @@ public class StatsClient {
                         .queryParam("unique", unique)
                         .build())
                 .retrieve()
-                .bodyToFlux(ViewStatsDto.class)
+                .bodyToFlux(ViewStats.class)
                 .collectList()
                 .block();
+
+        return response.stream()
+                .map(v -> ViewStatsDto.builder().app(v.getApp()).uri(v.getUri()).hits(v.getHits()).build())
+                .collect(Collectors.toList());
     }
 }

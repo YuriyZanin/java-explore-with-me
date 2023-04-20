@@ -24,12 +24,12 @@ public class EventPublicController {
     @GetMapping
     public Collection<EventShortDto> findAll(EventRequestParams params, HttpServletRequest request) {
         log.info("Запрос на получение опубликованных событий с параметрами={}", params);
-        return eventService.getAllPublic(params);
+        return eventService.getAllPublic(params, request.getRequestURI(), request.getRemoteAddr());
     }
 
     @GetMapping("/{id}")
     public EventFullDto findById(@PathVariable Long id, HttpServletRequest request) {
         log.info("Запрос на получение информации об опубликованном событии по id={}", id);
-        return eventService.getPublicById(id);
+        return eventService.getPublicById(id, request.getRequestURI(), request.getRemoteAddr());
     }
 }
