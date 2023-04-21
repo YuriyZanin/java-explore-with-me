@@ -1,7 +1,6 @@
 package ru.practicum.ewm.event.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -31,6 +30,8 @@ import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static ru.practicum.ewm.utils.DateTimeUtils.DEFAULT_DATE_TIME_FORMATTER;
+
 @Service
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
@@ -40,8 +41,7 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final ParticipationRequestRepository requestRepository;
 
-    @Value("${app-name}")
-    private String appName;
+    private final String appName = "ewm-main";
 
     @Override
     public Collection<EventFullDto> getAll(EventRequestParams params) {
@@ -55,9 +55,7 @@ public class EventServiceImpl implements EventService {
     public EventFullDto updateByAdmin(Long eventId, UpdateEventRequest adminRequest) {
         Event event = getEvent(eventId);
 
-        if (event.getPublishedOn() != null && event.getPublishedOn().isBefore(LocalDateTime.now().plusHours(1))) {
-            throw new IllegalArgumentException("Дата начала должна быть не ранее чем за час от даты публикации.");
-        }
+        validateEventDate(adminRequest.getEventDate());
 
         if (adminRequest.getStateAction() != null) {
             if (adminRequest.getStateAction().equals(StateAction.PUBLISH_EVENT)
@@ -79,44 +77,47 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Collection<EventShortDto> getAllPublic(EventRequestParams params, String uri, String ip) {
+        client.saveRequest(appName, uri, ip);
+
         Specification<Event> byState = (root, query, builder) -> builder.equal(
                 root.get("state"), EventState.PUBLISHED);
 
         Specification<Event> specification = buildSpecificationByParams(params);
         specification = specification == null ? byState : specification.and(byState);
 
-        Sort sort = getSorting(params);
+        Sort sort = Sort.by("eventDate");
         PageRequest page = PageRequest.of(params.getFrom() / params.getSize(), params.getSize(), sort);
         List<Event> events = eventRepository.findAll(specification, page).getContent();
 
-        client.saveRequest(appName, uri, ip);
+        if (events.isEmpty()) {
+            return Collections.emptyList();
+        }
 
         List<String> uris = events.stream().map(e -> uri + "/" + e.getId()).collect(Collectors.toList());
         LocalDateTime start = LocalDateTime.of(LocalDate.of(1900, 1, 1), LocalTime.of(0, 0));
         List<ViewStatsDto> stats = client.getStats(start, LocalDateTime.now(), uris, false);
         fillEventViews(events, stats, uri);
 
-        return EventMapper.MAPPER.toShortDtos(events);
-    }
+        if (params.getSort() != null && params.getSort().equals("VIEWS")) {
+            events.sort((a, b) -> Integer.compare(b.getViews(), a.getViews()));
+        }
 
-    private void fillEventViews(List<Event> events, List<ViewStatsDto> stats, String baseUri) {
-        Map<String, Integer> statsByUri = stats.stream()
-                .collect(Collectors.groupingBy(ViewStatsDto::getUri, Collectors.summingInt(v -> v.getHits().intValue())));
-        events.forEach(e -> e.setViews(statsByUri.get(baseUri + "/" + e.getId())));
+        return EventMapper.MAPPER.toShortDtos(events);
     }
 
     @Override
     public EventFullDto getPublicById(Long id, String uri, String ip) {
+        client.saveRequest(appName, uri, ip);
+
         Event event = eventRepository.findByIdAndStateIs(id, EventState.PUBLISHED).orElseThrow(
                 () -> new NotFoundException("Событие не найдено либо не опубликовано"));
 
-        client.saveRequest(appName, uri, ip);
         LocalDateTime start = LocalDateTime.of(LocalDate.of(1900, 1, 1), LocalTime.of(0, 0));
         List<ViewStatsDto> stats = client.getStats(start, LocalDateTime.now(),
                 List.of(uri), false);
         Integer hits = stats.stream().map(s -> s.getHits().intValue()).reduce(0, Integer::sum);
-
         event.setViews(hits);
+
         return EventMapper.MAPPER.toFullDto(event);
     }
 
@@ -126,6 +127,9 @@ public class EventServiceImpl implements EventService {
         User user = getUser(userId);
 
         Event event = EventMapper.MAPPER.toEvent(creationDto);
+        if (event.getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
+            throw new IllegalArgumentException("Дата события не должна быть раньше чем через 2 часа");
+        }
         event.setInitiator(user);
         event.setCreatedOn(LocalDateTime.now());
         event.setState(EventState.PENDING);
@@ -144,6 +148,8 @@ public class EventServiceImpl implements EventService {
         if (event.getState() == EventState.PUBLISHED) {
             throw new IllegalArgumentException("Опубликованные события редактировать невозможно");
         }
+
+        validateEventDate(userRequest.getEventDate());
 
         if (userRequest.getStateAction() != null) {
             if (userRequest.getStateAction().equals(StateAction.SEND_TO_REVIEW)) {
@@ -241,7 +247,9 @@ public class EventServiceImpl implements EventService {
         Optional.ofNullable(request.getCategoryId())
                 .ifPresent(c -> event.setCategory(Category.builder().id(request.getCategoryId()).build()));
         Optional.ofNullable(request.getDescription()).ifPresent(event::setDescription);
-        Optional.ofNullable(request.getEventDate()).ifPresent(event::setEventDate);
+        Optional.ofNullable(request.getEventDate()).ifPresent(s -> {
+            event.setEventDate(LocalDateTime.parse(s, DEFAULT_DATE_TIME_FORMATTER));
+        });
         Optional.ofNullable(request.getLocation()).ifPresent(l ->
                 event.setLocation(Location.builder().lat(l.getLat()).lon(l.getLon()).build()));
         Optional.ofNullable(request.getPaid()).ifPresent(event::setPaid);
@@ -274,14 +282,16 @@ public class EventServiceImpl implements EventService {
             specification = specification == null ? byDate : specification.and(byDate);
         } else {
             if (params.getRangeStart() != null) {
+                LocalDateTime start = LocalDateTime.parse(params.getRangeStart(), DEFAULT_DATE_TIME_FORMATTER);
                 Specification<Event> byStartDate = (root, query, builder) ->
-                        builder.greaterThanOrEqualTo(root.get("eventDate"), params.getRangeStart());
+                        builder.greaterThanOrEqualTo(root.get("eventDate"), start);
                 specification = specification == null ? byStartDate : specification.and(byStartDate);
             }
 
             if (params.getRangeEnd() != null) {
+                LocalDateTime end = LocalDateTime.parse(params.getRangeEnd(), DEFAULT_DATE_TIME_FORMATTER);
                 Specification<Event> byEndDate = (root, query, builder) ->
-                        builder.lessThan(root.get("eventDate"), params.getRangeEnd());
+                        builder.lessThan(root.get("eventDate"), end);
                 specification = specification == null ? byEndDate : specification.and(byEndDate);
             }
         }
@@ -310,15 +320,20 @@ public class EventServiceImpl implements EventService {
         return specification;
     }
 
-    private Sort getSorting(EventRequestParams params) {
-        if (params.getSort() == null) {
-            return Sort.unsorted();
+    private void validateEventDate(String eventDateStr) {
+        if (eventDateStr != null) {
+            LocalDateTime eventDate = LocalDateTime.parse(eventDateStr, DEFAULT_DATE_TIME_FORMATTER);
+            if (eventDate.isBefore(LocalDateTime.now().plusHours(1))) {
+                throw new IllegalArgumentException("Дата начала должна быть не ранее чем за час");
+            }
         }
+    }
 
-        if (params.getSort().equals("EVENT_DATE")) {
-            return Sort.by("event_date");
-        } else {
-            return Sort.by("views");
+    private void fillEventViews(List<Event> events, List<ViewStatsDto> stats, String baseUri) {
+        if (!stats.isEmpty()) {
+            Map<String, Integer> statsByUri = stats.stream()
+                    .collect(Collectors.groupingBy(ViewStatsDto::getUri, Collectors.summingInt(v -> v.getHits().intValue())));
+            events.forEach(e -> e.setViews(statsByUri.get(baseUri + "/" + e.getId())));
         }
     }
 }
