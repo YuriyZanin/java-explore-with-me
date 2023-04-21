@@ -35,8 +35,8 @@ CREATE TABLE IF NOT EXISTS events
     title              VARCHAR                                 NOT NULL,
     views              INTEGER DEFAULT 0                       NOT NULL,
     PRIMARY KEY (id),
-    FOREIGN KEY (category_id) REFERENCES categories (id) ON DELETE CASCADE,
-    FOREIGN KEY (initiator_id) REFERENCES users (id) ON DELETE CASCADE,
+    FOREIGN KEY (category_id) REFERENCES categories (id),
+    FOREIGN KEY (initiator_id) REFERENCES users (id),
     CHECK ( state IN ('PENDING', 'PUBLISHED', 'CANCELED'))
 );
 
