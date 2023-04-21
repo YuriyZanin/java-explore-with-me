@@ -2,6 +2,8 @@ package ru.practicum.ewm.event;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.event.dto.*;
@@ -21,9 +23,9 @@ public class EventPrivateController {
     private final EventService eventService;
 
     @PostMapping
-    public EventFullDto create(@PathVariable Long userId, @Validated @RequestBody NewEventDto creationDto) {
+    public ResponseEntity<EventFullDto> create(@PathVariable Long userId, @Validated @RequestBody NewEventDto creationDto) {
         log.info("Запрос на добавление события: userId={}, событие={}", userId, creationDto);
-        return eventService.create(userId, creationDto);
+        return new ResponseEntity<>(eventService.create(userId, creationDto), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{eventId}")

@@ -20,9 +20,9 @@ public class CompilationAdminController {
     private final CompilationService compilationService;
 
     @PostMapping
-    public CompilationDto create(@RequestBody @Valid NewCompilationDto creationDto) {
+    public ResponseEntity<CompilationDto> create(@RequestBody @Valid NewCompilationDto creationDto) {
         log.info("Добавление новой подборки {}", creationDto);
-        return compilationService.create(creationDto);
+        return new ResponseEntity<>(compilationService.create(creationDto), HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{compId}")

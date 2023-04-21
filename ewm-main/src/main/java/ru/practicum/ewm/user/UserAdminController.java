@@ -31,9 +31,9 @@ public class UserAdminController {
     }
 
     @PostMapping
-    public UserDto create(@RequestBody @Validated NewUserRequest userDetails) {
+    public ResponseEntity<UserDto> create(@RequestBody @Validated NewUserRequest userDetails) {
         log.info("Запрос на добавление пользователя {}", userDetails);
-        return userService.create(userDetails);
+        return new ResponseEntity<>(userService.create(userDetails), HttpStatus.CREATED);
     }
 
     @DeleteMapping(path = "/{userId}")

@@ -2,6 +2,8 @@ package ru.practicum.ewm.request;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import ru.practicum.ewm.request.service.ParticipationRequestService;
@@ -22,9 +24,9 @@ public class ParticipationRequestController {
     }
 
     @PostMapping
-    public ParticipationRequestDto create(@PathVariable Long userId, @RequestParam Long eventId) {
+    public ResponseEntity<ParticipationRequestDto> create(@PathVariable Long userId, @RequestParam Long eventId) {
         log.info("Добавление запроса на участие в событии: userId={}, eventId={}", userId, eventId);
-        return requestService.create(userId, eventId);
+        return new ResponseEntity<>(requestService.create(userId, eventId), HttpStatus.CREATED);
     }
 
     @PatchMapping("/{requestId}/cancel")
