@@ -33,7 +33,6 @@ CREATE TABLE IF NOT EXISTS events
     request_moderation BOOLEAN DEFAULT true                    NOT NULL,
     state              VARCHAR                                 NOT NULL,
     title              VARCHAR                                 NOT NULL,
-    views              INTEGER DEFAULT 0                       NOT NULL,
     PRIMARY KEY (id),
     FOREIGN KEY (category_id) REFERENCES categories (id),
     FOREIGN KEY (initiator_id) REFERENCES users (id),

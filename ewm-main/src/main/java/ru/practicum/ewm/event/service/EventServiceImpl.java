@@ -335,7 +335,12 @@ public class EventServiceImpl implements EventService {
         if (!stats.isEmpty()) {
             Map<String, Integer> statsByUri = stats.stream()
                     .collect(Collectors.groupingBy(ViewStatsDto::getUri, Collectors.summingInt(v -> v.getHits().intValue())));
-            events.forEach(e -> e.setViews(statsByUri.get(baseUri + "/" + e.getId())));
+            events.forEach(e -> {
+                Integer views = statsByUri.get(baseUri + "/" + e.getId());
+                if (views != null) {
+                    e.setViews(views);
+                }
+            });
         }
     }
 }

@@ -12,6 +12,6 @@ public class NewUserRequest {
     @Email
     @NotBlank
     String email;
-    @NotBlank(message = "must not be blank")
+    @NotBlank
     String name;
 }
