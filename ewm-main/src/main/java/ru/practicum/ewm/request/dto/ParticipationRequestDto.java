@@ -10,5 +10,5 @@ public class ParticipationRequestDto {
     Long event;
     Long requester;
     String created;
-    String state;
+    String status;
 }
