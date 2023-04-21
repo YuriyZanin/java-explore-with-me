@@ -1,6 +1,7 @@
 package ru.practicum.ewm.event.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
@@ -41,7 +42,8 @@ public class EventServiceImpl implements EventService {
     private final EventRepository eventRepository;
     private final ParticipationRequestRepository requestRepository;
 
-    private final String appName = "ewm-main";
+    @Value("${app.name}")
+    private String appName;
 
     @Override
     public Collection<EventFullDto> getAll(EventRequestParams params) {

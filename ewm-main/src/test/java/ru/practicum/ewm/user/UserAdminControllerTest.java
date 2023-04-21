@@ -36,7 +36,7 @@ public class UserAdminControllerTest {
 
     @SneakyThrows
     @Test
-    void shouldReturnStatus200AndJsonWhenSaveNewUser() {
+    void shouldReturnStatus201AndJsonWhenSaveNewUser() {
         NewUserRequest userRequest = NewUserRequest.builder().name("test").email("test@mail.com").build();
 
         Mockito.when(userService.create(Mockito.any())).thenReturn(userDto);
@@ -46,7 +46,7 @@ public class UserAdminControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(userDto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(userDto.getName())))
                 .andExpect(jsonPath("$.email", is(userDto.getEmail())));

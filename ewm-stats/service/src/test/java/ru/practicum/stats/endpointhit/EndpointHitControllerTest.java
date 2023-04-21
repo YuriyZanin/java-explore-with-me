@@ -45,7 +45,7 @@ public class EndpointHitControllerTest {
                 .content(mapper.writeValueAsString(test))
                 .characterEncoding(StandardCharsets.UTF_8)
                 .contentType(MediaType.APPLICATION_JSON)
-        ).andExpect(status().isOk());
+        ).andExpect(status().isCreated());
     }
 
     @SneakyThrows

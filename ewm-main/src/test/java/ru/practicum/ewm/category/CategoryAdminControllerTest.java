@@ -34,7 +34,7 @@ public class CategoryAdminControllerTest {
 
     @SneakyThrows
     @Test
-    void shouldReturnStatus200WhenSaveNewCategory() {
+    void shouldReturnStatus201WhenSaveNewCategory() {
         Mockito.when(categoryService.create(Mockito.any())).thenReturn(categoryDto);
 
         mvc.perform(post("/admin/categories")
@@ -42,7 +42,7 @@ public class CategoryAdminControllerTest {
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON))
-                .andExpect(status().isOk())
+                .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id", is(categoryDto.getId()), Long.class))
                 .andExpect(jsonPath("$.name", is(categoryDto.getName())));
     }

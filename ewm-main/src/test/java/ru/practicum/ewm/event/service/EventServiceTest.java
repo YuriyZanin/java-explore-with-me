@@ -2,18 +2,24 @@ package ru.practicum.ewm.event.service;
 
 import lombok.RequiredArgsConstructor;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.TestPropertySource;
 import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.service.CategoryService;
+import ru.practicum.ewm.configuration.StatsClientConfig;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.model.EventState;
 import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.service.UserService;
 import ru.practicum.ewm.utils.DateTimeUtils;
+import ru.practicum.stats.client.StatsClient;
+import ru.practicum.stats.dto.ViewStatsDto;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,10 +32,15 @@ import static org.hamcrest.Matchers.*;
 @RequiredArgsConstructor(onConstructor_ = @Autowired)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.ANY)
+@TestPropertySource(properties = {"app.name=ewm-main", "ewm-stats-service-url=http://localhost:9090"})
 public class EventServiceTest {
     private final EventService eventService;
     private final UserService userService;
     private final CategoryService categoryService;
+    @MockBean
+    private StatsClient statsClient;
+    @MockBean
+    private StatsClientConfig config;
 
     @Test
     void shouldSaveAndGetEvents() {
@@ -83,8 +94,9 @@ public class EventServiceTest {
         params = EventRequestParams.builder().states(new String[]{"PUBLISHED"}).build();
         List<EventFullDto> searchedPublished = new ArrayList<>(eventService.getAll(params));
 
+        Mockito.when(statsClient.getStats(Mockito.any(), Mockito.any(), Mockito.anyList(), Mockito.any()))
+                .thenReturn(List.of(ViewStatsDto.builder().app("ewm-main").uri("events/1").hits(1L).build()));
         EventFullDto eventWithViews = eventService.getPublicById(createdEvent1.getId(), "events/1", "0.0.0.0");
-
         List<EventShortDto> allEvents = new ArrayList<>(
                 eventService.getAllPublic(EventRequestParams.builder().build(), "events", "0.0.0.0"));
 
