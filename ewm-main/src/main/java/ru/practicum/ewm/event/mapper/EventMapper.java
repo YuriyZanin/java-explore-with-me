@@ -24,7 +24,8 @@ public interface EventMapper {
     @Mapping(target = "eventDate", source = "eventDate", dateFormat = DEFAULT_DATE_TIME_PATTERN)
     EventShortDto toShortDto(Event event);
 
-    @Mapping(target = "category.id", source = "categoryId")
+    @Mapping(target = "category.id", source = "category")
+    @Mapping(target = "eventDate", source = "eventDate", dateFormat = DEFAULT_DATE_TIME_PATTERN)
     Event toEvent(NewEventDto newEventDto);
 
     List<EventFullDto> toFullDtos(List<Event> events);
