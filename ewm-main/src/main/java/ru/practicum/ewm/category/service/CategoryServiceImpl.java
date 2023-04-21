@@ -18,12 +18,14 @@ import java.util.Collection;
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
 
+    @Transactional
     @Override
     public CategoryDto create(CategoryDto categoryDetails) {
         Category category = CategoryMapper.MAPPER.toCategory(categoryDetails);
         return CategoryMapper.MAPPER.toDto(categoryRepository.save(category));
     }
 
+    @Transactional
     @Override
     public CategoryDto update(Long categoryId, CategoryDto categoryDetails) {
         Category category = getCategory(categoryId);
@@ -31,6 +33,7 @@ public class CategoryServiceImpl implements CategoryService {
         return CategoryMapper.MAPPER.toDto(categoryRepository.save(category));
     }
 
+    @Transactional
     @Override
     public void delete(Long categoryId) {
         Category category = getCategory(categoryId);

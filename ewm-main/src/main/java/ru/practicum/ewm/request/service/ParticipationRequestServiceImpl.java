@@ -62,6 +62,7 @@ public class ParticipationRequestServiceImpl implements ParticipationRequestServ
         return ParticipationRequestMapper.MAPPER.toParticipantRequestDto(requestRepository.save(request));
     }
 
+    @Transactional
     @Override
     public ParticipationRequestDto cancel(Long userId, Long requestId) {
         getUser(userId);
