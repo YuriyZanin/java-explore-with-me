@@ -19,6 +19,7 @@ import ru.practicum.ewm.event.service.EventService;
 import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.service.UserService;
+import ru.practicum.ewm.utils.DateTimeUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -49,11 +50,11 @@ public class CompilationServiceTest {
         NewEventDto eventCreationDto = NewEventDto.builder()
                 .annotation("annotation")
                 .description("description")
-                .eventDate(LocalDateTime.now().plusDays(3))
+                .eventDate(LocalDateTime.now().plusDays(3).format(DateTimeUtils.DEFAULT_DATE_TIME_FORMATTER))
                 .paid(true)
                 .participantLimit(5)
                 .requestModeration(true)
-                .categoryId(createdCategory.getId())
+                .category(createdCategory.getId())
                 .title("title")
                 .location(LocationDto.builder().lat(33.343F).lon(34.242F).build())
                 .build();

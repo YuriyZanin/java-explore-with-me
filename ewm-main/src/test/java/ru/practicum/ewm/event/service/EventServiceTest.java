@@ -13,6 +13,7 @@ import ru.practicum.ewm.event.model.EventState;
 import ru.practicum.ewm.user.dto.NewUserRequest;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.service.UserService;
+import ru.practicum.ewm.utils.DateTimeUtils;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,11 +40,11 @@ public class EventServiceTest {
         NewEventDto eventCreationDto = NewEventDto.builder()
                 .annotation("annotation")
                 .description("description")
-                .eventDate(LocalDateTime.now().plusDays(3))
+                .eventDate(LocalDateTime.now().plusDays(3).format(DateTimeUtils.DEFAULT_DATE_TIME_FORMATTER))
                 .paid(true)
                 .participantLimit(5)
                 .requestModeration(true)
-                .categoryId(createdCategory.getId())
+                .category(createdCategory.getId())
                 .title("title")
                 .location(LocationDto.builder().lat(33.343F).lon(34.242F).build())
                 .build();
@@ -51,11 +52,11 @@ public class EventServiceTest {
         NewEventDto eventCreationDto2 = NewEventDto.builder()
                 .annotation("second")
                 .description("second")
-                .eventDate(LocalDateTime.now().plusDays(2))
+                .eventDate(LocalDateTime.now().plusDays(2).format(DateTimeUtils.DEFAULT_DATE_TIME_FORMATTER))
                 .paid(false)
                 .participantLimit(1)
                 .requestModeration(false)
-                .categoryId(createdCategory.getId())
+                .category(createdCategory.getId())
                 .title("second")
                 .location(LocationDto.builder().lat(43.3123F).lon(51.422F).build())
                 .build();
