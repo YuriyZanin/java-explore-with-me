@@ -2,12 +2,12 @@ package ru.practicum.ewm.event.dto;
 
 import lombok.Builder;
 import lombok.Value;
-import ru.practicum.ewm.validation.NotSoonerThan2Hours;
+import ru.practicum.stats.utils.DateTimeUtils;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
-import java.time.LocalDateTime;
 
 @Value
 @Builder
@@ -16,12 +16,12 @@ public class NewEventDto {
     @Size(min = 20, max = 2000)
     String annotation;
     @NotNull
-    Long categoryId;
+    Long category;
     @NotBlank
     @Size(min = 20, max = 7000)
     String description;
-    @NotSoonerThan2Hours
-    LocalDateTime eventDate;
+    @Pattern(regexp = DateTimeUtils.DEFAULT_DATE_TIME_REGEXP)
+    String eventDate;
     @NotNull
     LocationDto location;
     Boolean paid;

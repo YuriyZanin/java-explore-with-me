@@ -3,16 +3,14 @@ package ru.practicum.ewm.event.dto;
 import lombok.Builder;
 import lombok.Value;
 
-import java.time.LocalDateTime;
-
 @Value
 @Builder
 public class EventRequestParams {
     Long[] users;
     Long[] categories;
     String[] states;
-    LocalDateTime rangeStart;
-    LocalDateTime rangeEnd;
+    String rangeStart;
+    String rangeEnd;
     Boolean paid;
     boolean onlyAvailable = false;
     String text;
