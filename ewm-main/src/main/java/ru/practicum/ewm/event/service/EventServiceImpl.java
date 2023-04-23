@@ -47,8 +47,17 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public Collection<EventFullDto> getAll(EventRequestParamsDto params) {
+        // fetch для того чтобы избежать N+1 при маппинге в dto
+        Specification<Event> byState = (root, query, builder) -> {
+            root.fetch("initiator");
+            root.fetch("category");
+            return builder.isNotNull(root.get("state"));
+        };
+        Specification<Event> specification = buildSpecificationByParams(params);
+        specification = specification == null ? byState : specification.and(byState);
+
         PageRequest page = PageRequest.of(params.getFrom() / params.getSize(), params.getSize());
-        List<Event> events = eventRepository.findAll(buildSpecificationByParams(params), page).getContent();
+        List<Event> events = eventRepository.findAll(specification, page).getContent();
         return EventMapper.MAPPER.toFullDtos(events);
     }
 
@@ -81,8 +90,12 @@ public class EventServiceImpl implements EventService {
     public Collection<EventShortDto> getAllPublic(EventRequestParamsDto params, String uri, String ip) {
         client.saveRequest(appName, uri, ip);
 
-        Specification<Event> byState = (root, query, builder) -> builder.equal(
-                root.get("state"), EventState.PUBLISHED);
+        // fetch для того чтобы избежать N+1 при маппинге в dto
+        Specification<Event> byState = (root, query, builder) -> {
+            root.fetch("initiator");
+            root.fetch("category");
+            return builder.equal(root.get("state"), EventState.PUBLISHED);
+        };
 
         Specification<Event> specification = buildSpecificationByParams(params);
         specification = specification == null ? byState : specification.and(byState);
