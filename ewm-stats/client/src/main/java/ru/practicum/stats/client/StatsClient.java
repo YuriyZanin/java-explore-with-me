@@ -3,14 +3,12 @@ package ru.practicum.stats.client;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
-import ru.practicum.stats.client.model.ViewStats;
 import ru.practicum.stats.dto.EndpointHitDto;
 import ru.practicum.stats.dto.ViewStatsDto;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.practicum.stats.utils.DateTimeUtils.DEFAULT_DATE_TIME_FORMATTER;
 
@@ -34,7 +32,7 @@ public class StatsClient {
     }
 
     public List<ViewStatsDto> getStats(LocalDateTime start, LocalDateTime end, List<String> uris, Boolean unique) {
-        List<ViewStats> response = client.get()
+        return client.get()
                 .uri(uriBuilder -> uriBuilder.path("/stats")
                         .queryParam("start", start.format(DEFAULT_DATE_TIME_FORMATTER))
                         .queryParam("end", end.format(DEFAULT_DATE_TIME_FORMATTER))
@@ -42,12 +40,8 @@ public class StatsClient {
                         .queryParam("unique", unique)
                         .build())
                 .retrieve()
-                .bodyToFlux(ViewStats.class)
+                .bodyToFlux(ViewStatsDto.class)
                 .collectList()
                 .block();
-
-        return response.stream()
-                .map(v -> ViewStatsDto.builder().app(v.getApp()).uri(v.getUri()).hits(v.getHits()).build())
-                .collect(Collectors.toList());
     }
 }
