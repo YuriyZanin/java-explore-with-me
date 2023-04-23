@@ -67,5 +67,18 @@ CREATE TABLE IF NOT EXISTS event_compilations
     PRIMARY KEY (event_id, compilation_id),
     FOREIGN KEY (event_id) REFERENCES events (id) ON DELETE CASCADE,
     FOREIGN KEY (compilation_id) REFERENCES compilations (id) ON DELETE CASCADE
-)
+);
 
+CREATE INDEX idx_annotation on events (annotation);
+CREATE INDEX idx_category on events (category_id);
+CREATE INDEX idx_description on events (description);
+CREATE INDEX idx_event_date on events (event_date);
+CREATE INDEX idx_paid on events (paid);
+CREATE INDEX idx_confirmed on events (confirmed_requests);
+CREATE INDEX idx_participant on events (participant_limit);
+CREATE INDEX idx_state on events (state);
+CREATE INDEX idx_initiator on events (initiator_id);
+CREATE INDEX idx_pinned on compilations (pinned);
+CREATE INDEX idx_requester on participation_requests (requester_id);
+CREATE INDEX idx_request_event on participation_requests (event_id);
+CREATE INDEX idx_request_status on participation_requests (status);
