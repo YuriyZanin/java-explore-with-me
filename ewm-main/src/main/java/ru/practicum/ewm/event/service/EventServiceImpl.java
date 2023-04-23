@@ -59,12 +59,12 @@ public class EventServiceImpl implements EventService {
 
         validateEventDate(adminRequest.getEventDate());
 
-        if (adminRequest.getStateActionDto() != null) {
-            if (adminRequest.getStateActionDto().equals(StateActionDto.PUBLISH_EVENT)
+        if (adminRequest.getStateAction() != null) {
+            if (adminRequest.getStateAction().equals(StateActionDto.PUBLISH_EVENT)
                     && event.getState().equals(EventState.PENDING)) {
                 event.setState(EventState.PUBLISHED);
                 event.setPublishedOn(LocalDateTime.now());
-            } else if (adminRequest.getStateActionDto().equals(StateActionDto.REJECT_EVENT)
+            } else if (adminRequest.getStateAction().equals(StateActionDto.REJECT_EVENT)
                     && !event.getState().equals(EventState.PUBLISHED)) {
                 event.setState(EventState.CANCELED);
             } else {
@@ -153,10 +153,10 @@ public class EventServiceImpl implements EventService {
 
         validateEventDate(userRequest.getEventDate());
 
-        if (userRequest.getStateActionDto() != null) {
-            if (userRequest.getStateActionDto().equals(StateActionDto.SEND_TO_REVIEW)) {
+        if (userRequest.getStateAction() != null) {
+            if (userRequest.getStateAction().equals(StateActionDto.SEND_TO_REVIEW)) {
                 event.setState(EventState.PENDING);
-            } else if (userRequest.getStateActionDto().equals(StateActionDto.CANCEL_REVIEW)) {
+            } else if (userRequest.getStateAction().equals(StateActionDto.CANCEL_REVIEW)) {
                 event.setState(EventState.CANCELED);
             }
         }

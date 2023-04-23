@@ -88,7 +88,7 @@ public class EventServiceTest {
         params = EventRequestParamsDto.builder().categories(new Long[]{createdCategory.getId()}).build();
         List<EventFullDto> searchedByCategory = new ArrayList<>(eventService.getAll(params));
 
-        UpdateEventRequestDto updateRequest = UpdateEventRequestDto.builder().stateActionDto(StateActionDto.PUBLISH_EVENT).build();
+        UpdateEventRequestDto updateRequest = UpdateEventRequestDto.builder().stateAction(StateActionDto.PUBLISH_EVENT).build();
         eventService.updateByAdmin(createdEvent1.getId(), updateRequest);
 
         params = EventRequestParamsDto.builder().states(new String[]{"PUBLISHED"}).build();

@@ -21,7 +21,7 @@ public class UpdateEventRequestDto {
     Boolean paid;
     Integer participantLimit;
     Boolean requestModeration;
-    StateActionDto stateActionDto;
+    StateActionDto stateAction;
     @Size(min = 3, max = 120)
     String title;
 }
