@@ -9,7 +9,7 @@ import javax.validation.constraints.Size;
 
 @Value
 @Builder
-public class UpdateEventRequest {
+public class UpdateEventRequestDto {
     @Size(min = 20, max = 2000)
     String annotation;
     Long categoryId;
@@ -21,7 +21,7 @@ public class UpdateEventRequest {
     Boolean paid;
     Integer participantLimit;
     Boolean requestModeration;
-    StateAction stateAction;
+    StateActionDto stateActionDto;
     @Size(min = 3, max = 120)
     String title;
 }

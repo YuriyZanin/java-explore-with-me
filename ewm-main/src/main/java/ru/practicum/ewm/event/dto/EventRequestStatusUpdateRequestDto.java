@@ -5,7 +5,7 @@ import lombok.Value;
 import java.util.List;
 
 @Value
-public class EventRequestStatusUpdateRequest {
+public class EventRequestStatusUpdateRequestDto {
     List<Long> requestIds;
     String status;
 }

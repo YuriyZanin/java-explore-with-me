@@ -8,7 +8,7 @@ import javax.validation.constraints.NotBlank;
 
 @Value
 @Builder
-public class NewUserRequest {
+public class NewUserRequestDto {
     @Email
     @NotBlank
     String email;

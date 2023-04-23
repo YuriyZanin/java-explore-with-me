@@ -46,7 +46,7 @@ public class EventServiceImpl implements EventService {
     private String appName;
 
     @Override
-    public Collection<EventFullDto> getAll(EventRequestParams params) {
+    public Collection<EventFullDto> getAll(EventRequestParamsDto params) {
         PageRequest page = PageRequest.of(params.getFrom() / params.getSize(), params.getSize());
         List<Event> events = eventRepository.findAll(buildSpecificationByParams(params), page).getContent();
         return EventMapper.MAPPER.toFullDtos(events);
@@ -54,17 +54,17 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public EventFullDto updateByAdmin(Long eventId, UpdateEventRequest adminRequest) {
+    public EventFullDto updateByAdmin(Long eventId, UpdateEventRequestDto adminRequest) {
         Event event = getEvent(eventId);
 
         validateEventDate(adminRequest.getEventDate());
 
-        if (adminRequest.getStateAction() != null) {
-            if (adminRequest.getStateAction().equals(StateAction.PUBLISH_EVENT)
+        if (adminRequest.getStateActionDto() != null) {
+            if (adminRequest.getStateActionDto().equals(StateActionDto.PUBLISH_EVENT)
                     && event.getState().equals(EventState.PENDING)) {
                 event.setState(EventState.PUBLISHED);
                 event.setPublishedOn(LocalDateTime.now());
-            } else if (adminRequest.getStateAction().equals(StateAction.REJECT_EVENT)
+            } else if (adminRequest.getStateActionDto().equals(StateActionDto.REJECT_EVENT)
                     && !event.getState().equals(EventState.PUBLISHED)) {
                 event.setState(EventState.CANCELED);
             } else {
@@ -78,7 +78,7 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public Collection<EventShortDto> getAllPublic(EventRequestParams params, String uri, String ip) {
+    public Collection<EventShortDto> getAllPublic(EventRequestParamsDto params, String uri, String ip) {
         client.saveRequest(appName, uri, ip);
 
         Specification<Event> byState = (root, query, builder) -> builder.equal(
@@ -141,7 +141,7 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public EventFullDto update(Long userId, Long eventId, UpdateEventRequest userRequest) {
+    public EventFullDto update(Long userId, Long eventId, UpdateEventRequestDto userRequest) {
         getUser(userId);
         Event event = getEvent(eventId);
         if (!userId.equals(event.getInitiator().getId())) {
@@ -153,10 +153,10 @@ public class EventServiceImpl implements EventService {
 
         validateEventDate(userRequest.getEventDate());
 
-        if (userRequest.getStateAction() != null) {
-            if (userRequest.getStateAction().equals(StateAction.SEND_TO_REVIEW)) {
+        if (userRequest.getStateActionDto() != null) {
+            if (userRequest.getStateActionDto().equals(StateActionDto.SEND_TO_REVIEW)) {
                 event.setState(EventState.PENDING);
-            } else if (userRequest.getStateAction().equals(StateAction.CANCEL_REVIEW)) {
+            } else if (userRequest.getStateActionDto().equals(StateActionDto.CANCEL_REVIEW)) {
                 event.setState(EventState.CANCELED);
             }
         }
@@ -196,8 +196,8 @@ public class EventServiceImpl implements EventService {
 
     @Transactional
     @Override
-    public EventRequestStatusUpdateResult updateRequestsStatus(Long userId, Long eventId,
-                                                               EventRequestStatusUpdateRequest updateRequest) {
+    public EventRequestStatusUpdateResultDto updateRequestsStatus(Long userId, Long eventId,
+                                                                  EventRequestStatusUpdateRequestDto updateRequest) {
         getUser(userId);
         Event event = getEvent(eventId);
         Status newStatus = Status.valueOf(updateRequest.getStatus());
@@ -232,7 +232,7 @@ public class EventServiceImpl implements EventService {
             requestRepository.saveAll(requests);
         }
 
-        return new EventRequestStatusUpdateResult(ParticipationRequestMapper.MAPPER.toDtos(confirmedRequests),
+        return new EventRequestStatusUpdateResultDto(ParticipationRequestMapper.MAPPER.toDtos(confirmedRequests),
                 ParticipationRequestMapper.MAPPER.toDtos(rejectedRequests));
     }
 
@@ -244,7 +244,7 @@ public class EventServiceImpl implements EventService {
         return eventRepository.findById(eventId).orElseThrow(() -> new NotFoundException("Событие не найдено"));
     }
 
-    private void updateEventByRequest(Event event, UpdateEventRequest request) {
+    private void updateEventByRequest(Event event, UpdateEventRequestDto request) {
         Optional.ofNullable(request.getAnnotation()).ifPresent(event::setAnnotation);
         Optional.ofNullable(request.getCategoryId())
                 .ifPresent(c -> event.setCategory(Category.builder().id(request.getCategoryId()).build()));
@@ -260,7 +260,7 @@ public class EventServiceImpl implements EventService {
         Optional.ofNullable(request.getTitle()).ifPresent(event::setTitle);
     }
 
-    private Specification<Event> buildSpecificationByParams(EventRequestParams params) {
+    private Specification<Event> buildSpecificationByParams(EventRequestParamsDto params) {
         Specification<Event> specification = null;
 
         if (params.getUsers() != null) {

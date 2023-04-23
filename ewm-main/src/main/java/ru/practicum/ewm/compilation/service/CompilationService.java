@@ -2,7 +2,7 @@ package ru.practicum.ewm.compilation.service;
 
 import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
-import ru.practicum.ewm.compilation.dto.UpdateCompilationRequest;
+import ru.practicum.ewm.compilation.dto.UpdateCompilationRequestDto;
 
 import java.util.Collection;
 
@@ -15,5 +15,5 @@ public interface CompilationService {
 
     void delete(Long compId);
 
-    CompilationDto update(Long compId, UpdateCompilationRequest request);
+    CompilationDto update(Long compId, UpdateCompilationRequestDto request);
 }

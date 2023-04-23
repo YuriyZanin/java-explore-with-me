@@ -7,7 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
-import ru.practicum.ewm.compilation.dto.UpdateCompilationRequest;
+import ru.practicum.ewm.compilation.dto.UpdateCompilationRequestDto;
 import ru.practicum.ewm.compilation.service.CompilationService;
 
 import javax.validation.Valid;
@@ -33,7 +33,7 @@ public class CompilationAdminController {
     }
 
     @PatchMapping("/{compId}")
-    public CompilationDto update(@PathVariable Long compId, @RequestBody UpdateCompilationRequest request) {
+    public CompilationDto update(@PathVariable Long compId, @RequestBody UpdateCompilationRequestDto request) {
         log.info("Обновить информацию о подборки: compId={}", request);
         return compilationService.update(compId, request);
     }

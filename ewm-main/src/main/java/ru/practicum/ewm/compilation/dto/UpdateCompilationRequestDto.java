@@ -7,7 +7,7 @@ import java.util.List;
 
 @Value
 @Builder
-public class UpdateCompilationRequest {
+public class UpdateCompilationRequestDto {
     List<Long> events;
     Boolean pinned;
     String title;

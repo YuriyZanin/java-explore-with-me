@@ -10,7 +10,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestPropertySource;
-import ru.practicum.ewm.user.dto.NewUserRequest;
+import ru.practicum.ewm.user.dto.NewUserRequestDto;
 import ru.practicum.ewm.user.dto.UserDto;
 
 import java.util.Collection;
@@ -28,9 +28,9 @@ class UserServiceTest {
 
     @Test
     void shouldSaveAndGetUsers() {
-        NewUserRequest user1Details = NewUserRequest.builder().email("mail1@mail.ru").name("test1").build();
-        NewUserRequest user2Details = NewUserRequest.builder().email("mail2@mail.ru").name("test2").build();
-        NewUserRequest user3Details = NewUserRequest.builder().email("mail3@mail.ru").name("test3").build();
+        NewUserRequestDto user1Details = NewUserRequestDto.builder().email("mail1@mail.ru").name("test1").build();
+        NewUserRequestDto user2Details = NewUserRequestDto.builder().email("mail2@mail.ru").name("test2").build();
+        NewUserRequestDto user3Details = NewUserRequestDto.builder().email("mail3@mail.ru").name("test3").build();
 
         UserDto createdUser1 = userService.create(user1Details);
         UserDto createdUser2 = userService.create(user2Details);
@@ -53,6 +53,6 @@ class UserServiceTest {
         assertThat(allUserAfterDelete, hasSize(2));
         assertThat(allUserAfterDelete, hasItems(createdUser2, createdUser3));
         Assertions.assertThrows(DataIntegrityViolationException.class, () ->
-                userService.create(NewUserRequest.builder().email("mail2@mail.ru").name("test2").build()));
+                userService.create(NewUserRequestDto.builder().email("mail2@mail.ru").name("test2").build()));
     }
 }

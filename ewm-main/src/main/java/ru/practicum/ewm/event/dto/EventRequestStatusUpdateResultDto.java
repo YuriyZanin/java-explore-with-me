@@ -6,7 +6,7 @@ import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import java.util.List;
 
 @Value
-public class EventRequestStatusUpdateResult {
+public class EventRequestStatusUpdateResultDto {
     List<ParticipationRequestDto> confirmedRequests;
     List<ParticipationRequestDto> rejectedRequests;
 }

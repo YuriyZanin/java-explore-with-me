@@ -5,7 +5,7 @@ import lombok.Value;
 
 @Value
 @Builder
-public class EventRequestParams {
+public class EventRequestParamsDto {
     Long[] users;
     Long[] categories;
     String[] states;

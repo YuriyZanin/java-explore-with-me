@@ -2,7 +2,7 @@ package ru.practicum.ewm.user.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.factory.Mappers;
-import ru.practicum.ewm.user.dto.NewUserRequest;
+import ru.practicum.ewm.user.dto.NewUserRequestDto;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.model.User;
 
@@ -14,7 +14,7 @@ public interface UserMapper {
 
     UserDto toUserDto(User user);
 
-    User toUser(NewUserRequest userDetails);
+    User toUser(NewUserRequestDto userDetails);
 
     List<UserDto> toUserDtos(List<User> users);
 }

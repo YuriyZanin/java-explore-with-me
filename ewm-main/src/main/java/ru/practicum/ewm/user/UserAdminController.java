@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import ru.practicum.ewm.user.dto.NewUserRequest;
+import ru.practicum.ewm.user.dto.NewUserRequestDto;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.service.UserService;
 
@@ -31,7 +31,7 @@ public class UserAdminController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> create(@RequestBody @Validated NewUserRequest userDetails) {
+    public ResponseEntity<UserDto> create(@RequestBody @Validated NewUserRequestDto userDetails) {
         log.info("Запрос на добавление пользователя {}", userDetails);
         return new ResponseEntity<>(userService.create(userDetails), HttpStatus.CREATED);
     }

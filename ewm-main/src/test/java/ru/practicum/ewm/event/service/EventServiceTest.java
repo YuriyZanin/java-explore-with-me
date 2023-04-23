@@ -14,7 +14,7 @@ import ru.practicum.ewm.category.service.CategoryService;
 import ru.practicum.ewm.configuration.StatsClientConfig;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.event.model.EventState;
-import ru.practicum.ewm.user.dto.NewUserRequest;
+import ru.practicum.ewm.user.dto.NewUserRequestDto;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.service.UserService;
 import ru.practicum.ewm.utils.DateTimeUtils;
@@ -47,7 +47,7 @@ public class EventServiceTest {
         CategoryDto category1 = CategoryDto.builder().name("category1").build();
         CategoryDto createdCategory = categoryService.create(category1);
 
-        NewUserRequest user1Details = NewUserRequest.builder().name("test1").email("mail1@mail.ru").build();
+        NewUserRequestDto user1Details = NewUserRequestDto.builder().name("test1").email("mail1@mail.ru").build();
         NewEventDto eventCreationDto = NewEventDto.builder()
                 .annotation("annotation")
                 .description("description")
@@ -76,29 +76,29 @@ public class EventServiceTest {
         EventFullDto createdEvent1 = eventService.create(createdUser.getId(), eventCreationDto);
         EventFullDto createdEvent2 = eventService.create(createdUser.getId(), eventCreationDto2);
 
-        EventRequestParams params = EventRequestParams.builder().paid(false).build();
+        EventRequestParamsDto params = EventRequestParamsDto.builder().paid(false).build();
         List<EventFullDto> searchedByPaid = new ArrayList<>(eventService.getAll(params));
 
-        params = EventRequestParams.builder().text("annotation").build();
+        params = EventRequestParamsDto.builder().text("annotation").build();
         List<EventFullDto> searchedByText = new ArrayList<>(eventService.getAll(params));
 
-        params = EventRequestParams.builder().states(new String[]{"PENDING"}).build();
+        params = EventRequestParamsDto.builder().states(new String[]{"PENDING"}).build();
         List<EventFullDto> searchedPending = new ArrayList<>(eventService.getAll(params));
 
-        params = EventRequestParams.builder().categories(new Long[]{createdCategory.getId()}).build();
+        params = EventRequestParamsDto.builder().categories(new Long[]{createdCategory.getId()}).build();
         List<EventFullDto> searchedByCategory = new ArrayList<>(eventService.getAll(params));
 
-        UpdateEventRequest updateRequest = UpdateEventRequest.builder().stateAction(StateAction.PUBLISH_EVENT).build();
+        UpdateEventRequestDto updateRequest = UpdateEventRequestDto.builder().stateActionDto(StateActionDto.PUBLISH_EVENT).build();
         eventService.updateByAdmin(createdEvent1.getId(), updateRequest);
 
-        params = EventRequestParams.builder().states(new String[]{"PUBLISHED"}).build();
+        params = EventRequestParamsDto.builder().states(new String[]{"PUBLISHED"}).build();
         List<EventFullDto> searchedPublished = new ArrayList<>(eventService.getAll(params));
 
         Mockito.when(statsClient.getStats(Mockito.any(), Mockito.any(), Mockito.anyList(), Mockito.any()))
                 .thenReturn(List.of(ViewStatsDto.builder().app("ewm-main").uri("events/1").hits(1L).build()));
         EventFullDto eventWithViews = eventService.getPublicById(createdEvent1.getId(), "events/1", "0.0.0.0");
         List<EventShortDto> allEvents = new ArrayList<>(
-                eventService.getAllPublic(EventRequestParams.builder().build(), "events", "0.0.0.0"));
+                eventService.getAllPublic(EventRequestParamsDto.builder().build(), "events", "0.0.0.0"));
 
         assertThat(createdEvent1.getId(), notNullValue());
         assertThat(searchedByPaid, hasSize(1));

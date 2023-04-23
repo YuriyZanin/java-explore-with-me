@@ -12,12 +12,12 @@ import ru.practicum.ewm.category.dto.CategoryDto;
 import ru.practicum.ewm.category.service.CategoryService;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
-import ru.practicum.ewm.compilation.dto.UpdateCompilationRequest;
+import ru.practicum.ewm.compilation.dto.UpdateCompilationRequestDto;
 import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.LocationDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
 import ru.practicum.ewm.event.service.EventService;
-import ru.practicum.ewm.user.dto.NewUserRequest;
+import ru.practicum.ewm.user.dto.NewUserRequestDto;
 import ru.practicum.ewm.user.dto.UserDto;
 import ru.practicum.ewm.user.service.UserService;
 import ru.practicum.ewm.utils.DateTimeUtils;
@@ -44,7 +44,7 @@ public class CompilationServiceTest {
         NewCompilationDto dto = NewCompilationDto.builder().title("test").pinned(false).build();
         CompilationDto createdCompilation = compilationService.create(dto);
 
-        NewUserRequest userDetails = NewUserRequest.builder().name("test1").email("mail1@mail.ru").build();
+        NewUserRequestDto userDetails = NewUserRequestDto.builder().name("test1").email("mail1@mail.ru").build();
         UserDto createdUser = userService.create(userDetails);
 
         CategoryDto category1 = CategoryDto.builder().name("category1").build();
@@ -62,7 +62,7 @@ public class CompilationServiceTest {
                 .build();
 
         EventFullDto createdEvent = eventService.create(createdUser.getId(), eventCreationDto);
-        UpdateCompilationRequest updateRequest = UpdateCompilationRequest.builder().title("updated").pinned(true)
+        UpdateCompilationRequestDto updateRequest = UpdateCompilationRequestDto.builder().title("updated").pinned(true)
                 .events(List.of(createdEvent.getId())).build();
         compilationService.update(createdCompilation.getId(), updateRequest);
         CompilationDto updatedCompilation = compilationService.get(createdCompilation.getId());

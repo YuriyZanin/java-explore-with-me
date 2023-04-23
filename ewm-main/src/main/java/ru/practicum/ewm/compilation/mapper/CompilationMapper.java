@@ -6,7 +6,7 @@ import org.mapstruct.Named;
 import org.mapstruct.factory.Mappers;
 import ru.practicum.ewm.compilation.dto.CompilationDto;
 import ru.practicum.ewm.compilation.dto.NewCompilationDto;
-import ru.practicum.ewm.compilation.dto.UpdateCompilationRequest;
+import ru.practicum.ewm.compilation.dto.UpdateCompilationRequestDto;
 import ru.practicum.ewm.compilation.model.Compilation;
 import ru.practicum.ewm.event.model.Event;
 
@@ -29,5 +29,5 @@ public interface CompilationMapper {
     Compilation toCompilation(NewCompilationDto dto);
 
     @Mapping(source = "events", target = "events", qualifiedByName = "toEvent")
-    Compilation toCompilation(UpdateCompilationRequest request);
+    Compilation toCompilation(UpdateCompilationRequestDto request);
 }
