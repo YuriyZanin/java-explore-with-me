@@ -36,6 +36,8 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewm-main
       - POSTGRES_USER=root
       - POSTGRES_PASSWORD=root
+      - EWM_STATS_SERVICE_URL=http://stats-server:9090
+      - EWM_APP_NAME=ewm-main
 
   ewm-db:
     image: postgres:12.14-alpine
