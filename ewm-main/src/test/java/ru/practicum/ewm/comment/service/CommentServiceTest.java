@@ -43,6 +43,7 @@ public class CommentServiceTest {
         CategoryDto createdCategory = categoryService.create(category1);
 
         NewUserRequestDto user1Details = NewUserRequestDto.builder().name("test1").email("mail1@mail.ru").build();
+        NewUserRequestDto user2Details = NewUserRequestDto.builder().name("test2").email("mail2@mail.ru").build();
         NewEventDto eventCreationDto = NewEventDto.builder()
                 .annotation("annotation")
                 .description("description")
@@ -55,15 +56,16 @@ public class CommentServiceTest {
                 .location(LocationDto.builder().lat(33.343F).lon(34.242F).build())
                 .build();
         UserDto createdUser = userService.create(user1Details);
+        UserDto created2User = userService.create(user2Details);
         EventFullDto createdEvent1 = eventService.create(createdUser.getId(), eventCreationDto);
 
         UpdateEventRequestDto updateRequest = UpdateEventRequestDto.builder().stateAction(StateActionDto.PUBLISH_EVENT).build();
         eventService.updateByAdmin(createdEvent1.getId(), updateRequest);
 
         NewCommentDto newComment = new NewCommentDto(null, "test");
-        commentService.create(createdUser.getId(), createdEvent1.getId(), newComment);
+        commentService.create(created2User.getId(), createdEvent1.getId(), newComment);
 
-        Collection<CommentDto> byUser = commentService.getByUser(createdUser.getId(), 0, 1);
+        Collection<CommentDto> byUser = commentService.getByUser(created2User.getId(), 0, 1);
         Collection<CommentDto> byEvent = commentService.getByEvent(createdEvent1.getId(), 0, 1);
 
         assertThat(byUser, hasSize(1));

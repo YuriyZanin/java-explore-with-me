@@ -14,6 +14,15 @@ import java.time.LocalDateTime;
 @Builder
 @Entity
 @Table(name = "comments")
+@NamedEntityGraph(name = "comment_entity_graph", attributeNodes = {
+        @NamedAttributeNode("user"),
+        @NamedAttributeNode(value = "event", subgraph = "comment_entity_subgraph")
+}, subgraphs = {
+        @NamedSubgraph(name = "comment_entity_subgraph", attributeNodes = {
+                @NamedAttributeNode(value = "category"),
+                @NamedAttributeNode(value = "initiator")
+        }),
+})
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

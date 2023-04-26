@@ -42,7 +42,6 @@ public class CommentServiceImpl implements CommentService {
     @Transactional
     @Override
     public CommentDto update(Long userId, Long commentId, NewCommentDto commentDto) {
-        getUser(userId);
         Comment comment = getComment(commentId);
 
         if (!comment.getUser().getId().equals(userId)) {
@@ -62,8 +61,13 @@ public class CommentServiceImpl implements CommentService {
 
     @Override
     public CommentDto get(Long userId, Long commentId) {
-        getUser(userId);
-        return CommentMapper.MAPPER.toCommentDto(getComment(commentId));
+        Comment comment = getComment(commentId);
+
+        if (!comment.getUser().getId().equals(userId)) {
+            throw new IllegalArgumentException("Комментарий не принадлежит пользователю");
+        }
+
+        return CommentMapper.MAPPER.toCommentDto(comment);
     }
 
     @Override
